@@ -21,7 +21,7 @@ jobs:
           git submodule update --init --recursive
           git submodule update --recursive --remote
 
-      - name: Create Pull Request - switch-ui-test2
+      - name: Create Pull Request - test2
         id: create_pr
         run: |
           git config user.email "actions@github.com"
