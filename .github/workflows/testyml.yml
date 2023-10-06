@@ -8,12 +8,7 @@ on:
 jobs:
   update-swui-fsd:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      checks: write
-      contents: read
-      pull-requests: write
-      repository-projects: write
+    permissions: write-all
     steps:
       - name: Checkout test2 repository
         uses: actions/checkout@v2
