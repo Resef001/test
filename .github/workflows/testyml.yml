@@ -30,7 +30,7 @@ jobs:
           git add --all
           git commit -m "Update submodules"
           git push --set-upstream origin update-submodules-test2
-          gh pr create --base develop --head update-submodules-test2 --title "Update submodules" --body "Updating submodules from test2"
+          gh pr create --base main --head update-submodules-test2 --title "Update submodules" --body "Updating submodules from test2"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
