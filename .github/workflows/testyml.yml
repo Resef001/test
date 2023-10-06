@@ -36,6 +36,6 @@ jobs:
 
       - name: Add Reviewers
         if: steps.create_pr.outputs.number
-        run: gh pr review ${{ steps.create_pr.outputs.number }} --add-reviewers Resef001
+        run: gh pr review ${{ steps.create_pr.outputs.number }} --add-reviewers Nico280062
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
