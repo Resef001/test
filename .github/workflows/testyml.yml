@@ -33,10 +33,4 @@ jobs:
           git push --set-upstream origin update-submodules-test2
           gh pr create --base main --head update-submodules-test2 --title "Update submodules" --body "Updating submodules from test"
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Add Reviewers
-        if: steps.create_pr.outputs.number
-        run: gh pr review ${{ steps.create_pr.outputs.number }} --add-reviewers Nico280062
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}     
