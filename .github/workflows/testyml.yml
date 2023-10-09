@@ -1,4 +1,4 @@
-name: Send submodule updates to parent repo
+name: Update Submodules and Create Pull Request
 
 on:
   push:
@@ -6,31 +6,55 @@ on:
       - main
 
 jobs:
-  update-swui-fsd:
+  update-submodules:
     runs-on: ubuntu-latest
-    permissions: write-all
     steps:
-      - name: Checkout test2 repository
+      - name: Checkout repository
         uses: actions/checkout@v2
         with:
-          repository: Resef001/test2
-          token: ${{ secrets.SUBMODULE_UPDATE }}
-          submodules: true
+          submodules: recursive
 
-      - name: Pull & update submodules recursively
+      - name: Update submodules
         run: |
           git submodule update --init --recursive
           git submodule update --recursive --remote
 
-      - name: Create Pull Request - test2
-        id: create_pr
+      - name: Create Submodule Branch and Commit Changes
         run: |
-          git config user.email "actions@github.com"
-          git config user.name "GitHub Actions - update submodules"
-          git checkout -b update-submodules-test2
-          git add --all
+          git checkout -b update-submodule-changes
+          git add .
           git commit -m "Update submodules"
-          git push --set-upstream origin update-submodules-test2
-          gh pr create --base main --head update-submodules-test2 --title "Update submodules" --body "Updating submodules from test"
+          git push origin update-submodule-changes
+
+      - name: Create Submodule Pull Request
+        id: create_submodule_pr
+        run: |
+          gh pr create --repo Resef001/test2 --base main --head update-submodule-changes --title "Update submodules" --body "Updating submodules from test"
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}     
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  merge-submodule-pr:
+    needs: update-submodules
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge Submodule Pull Request
+        run: |
+          gh pr merge --auto --merge --squash <submodule-pr-number>
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Super Repository Branch
+        run: |
+          git checkout main
+          git pull origin main
+          git submodule update --recursive --remote
+          git add .
+          git commit -m "Update submodule pointer"
+          git push origin main
+
+      - name: Create Super Repository Pull Request
+        id: create_super_pr
+        run: |
+          gh pr create --base main --head update-submodule-changes --title "Update submodule pointer" --body "Updating submodule pointer from submodules"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
