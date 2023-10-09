@@ -15,12 +15,14 @@ jobs:
           submodules: recursive
 
       - name: Update submodules
-        run: |
+        run: |          
           git submodule update --init --recursive
           git submodule update --recursive --remote
 
       - name: Create Submodule Branch and Commit Changes
         run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions - update submodules"
           git checkout -b update-submodule-changes
           git add .
           git commit -m "Update submodules"
@@ -45,6 +47,8 @@ jobs:
 
       - name: Update Super Repository Branch
         run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions - update submodules"
           git checkout main
           git pull origin main
           git submodule update --recursive --remote
