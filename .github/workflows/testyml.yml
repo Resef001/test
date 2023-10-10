@@ -52,10 +52,4 @@ jobs:
 
       - name: Create Pull Request
         run: |
-          hub pull-request -m "Update submodules" -b main -h feature/update-submodule
-      
-      - name: Add Reviewers
-        if: steps.create_pr.outputs.number
-        run: gh pr review ${{ steps.create_pr.outputs.number }} --add-reviewers Resef001
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          hub pull-request -m "Update submodules" -b main -h feature/update-submodule --add-reviewers Resef001
