@@ -16,6 +16,10 @@ jobs:
           repository: Resef001/test2
           token: ${{ secrets.SUBMODULE_UPDATE }}
           submodules: true
+      
+      - name: Get current branch name
+        id: branch_name
+        run: echo "::set-output name=branch::$(echo $GITHUB_REF | sed 's/refs\/heads\///')"
 
       - name: Create feature branch
         run: |
@@ -52,4 +56,4 @@ jobs:
 
       - name: Create Pull Request
         run: |
-          hub pull-request -m "Update submodules" -b main -h feature/update-submodule -r nico280062
+          hub pull-request -m "Update submodules" -b main -h ${{ steps.branch_name.outputs.branch }} -r nico280062
