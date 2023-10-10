@@ -35,7 +35,7 @@ jobs:
 
       - name: Push feature branch
         run: |
-          git push origin feature/update-submodule
+          git push --force origin feature/update-submodule
 
       - name: Check if pull request already exists
         id: check_pr
