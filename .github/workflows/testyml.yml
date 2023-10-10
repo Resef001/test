@@ -1,4 +1,4 @@
-name: Send submodule updates to parent repo
+name: Send submodule pull request to parent repo
 
 on:
   push:
@@ -6,32 +6,17 @@ on:
       - main
 
 jobs:
-  update-project-test:
+  update-swui-fsd:
     runs-on: ubuntu-latest
 
     steps:
-      
-      - name: Checkout original repository
-        uses: actions/checkout@v2
-        with:
-          repository: Resef001/test
-          token: ${{ secrets.SUBMODULE_UPDATE }}
-          path: original-repo
-          ref: main
-      
-      - name: Get current branch name from original repository
-        id: branch_name
-        run: |
-          cd original-repo
-          echo "::set-output name=branch::$(echo $GITHUB_REF | sed 's/refs\/heads\///')"
-      
       - name: Checkout parent repository
         uses: actions/checkout@v2
         with:
           repository: Resef001/test2
           token: ${{ secrets.SUBMODULE_UPDATE }}
           submodules: true
-           
+
       - name: Create feature branch
         run: |
           git checkout -b feature/update-submodule
@@ -51,20 +36,20 @@ jobs:
       - name: Push feature branch
         run: |
           git push origin feature/update-submodule
-          
-      - name: Install or Restore hub
-        run: |
-          if [ ! -f /usr/local/bin/hub ]; then
-            wget https://github.com/github/hub/releases/download/v2.14.2/hub-linux-amd64-2.14.2.tgz
-            tar -xvf hub-linux-amd64-2.14.2.tgz
-            sudo mv hub-linux-amd64-2.14.2/bin/hub /usr/local/bin/
-            rm -rf hub-linux-amd64-2.14.2*
-          fi
-      
-      - name: Set GITHUB_TOKEN as an environment variable
-        run: |
-          echo "GITHUB_TOKEN=${{ secrets.SUBMODULE_UPDATE }}" >> $GITHUB_ENV
 
-      - name: Create Pull Request
+      - name: Check if pull request already exists
+        id: check_pr
         run: |
-          hub pull-request -m "Update submodules" -b main -h ${{ steps.branch_name.outputs.branch }} -r nico280062
+          PR_COUNT=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/InComm-OLS/switch-ui-fsd/pulls?state=open" | jq '.[] | select(.head.ref == "feature/update-submodule") | .number')
+          echo "::set-output name=pr_exists::$(if [[ -n $PR_COUNT ]]; then echo true; else echo false; fi)"
+        shell: bash
+
+      - name: Install jq
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install jq -y
+
+      - name: Create Pull Request if it doesn't exist
+        if: steps.check_pr.outputs.pr_exists == 'false'
+        run: |
+          hub pull-request -m "Update submodules" -b main -h feature/update-submodule
