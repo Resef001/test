@@ -10,17 +10,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      
+      - name: Checkout original repository
+        uses: actions/checkout@v2
+        with:
+          repository: Resef001/test
+          token: ${{ secrets.SUBMODULE_UPDATE }}
+          path: original-repo
+          ref: main
+      
+      - name: Get current branch name from original repository
+        id: branch_name
+        run: |
+          cd original-repo
+          echo "::set-output name=branch::$(echo $GITHUB_REF | sed 's/refs\/heads\///')"
+      
       - name: Checkout parent repository
         uses: actions/checkout@v2
         with:
           repository: Resef001/test2
           token: ${{ secrets.SUBMODULE_UPDATE }}
           submodules: true
-      
-      - name: Get current branch name
-        id: branch_name
-        run: echo "::set-output name=branch::$(echo $GITHUB_REF | sed 's/refs\/heads\///')"
-
+           
       - name: Create feature branch
         run: |
           git checkout -b feature/update-submodule
