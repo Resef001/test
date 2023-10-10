@@ -40,7 +40,7 @@ jobs:
       - name: Check if pull request already exists
         id: check_pr
         run: |
-          PR_COUNT=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/InComm-OLS/switch-ui-fsd/pulls?state=open" | jq '.[] | select(.head.ref == "feature/update-submodule") | .number')
+          PR_COUNT=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/Resef001/test2/pulls?state=open" | jq '.[] | select(.head.ref == "feature/update-submodule") | .number')
           echo "::set-output name=pr_exists::$(if [[ -n $PR_COUNT ]]; then echo true; else echo false; fi)"
         shell: bash
 
