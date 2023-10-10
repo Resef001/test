@@ -37,6 +37,20 @@ jobs:
         run: |
           git push --force origin feature/update-submodule
 
+      - name: Install or Restore hub
+        run: |
+          if [ ! -f /usr/local/bin/hub ]; then
+            wget https://github.com/github/hub/releases/download/v2.14.2/hub-linux-amd64-2.14.2.tgz
+            tar -xvf hub-linux-amd64-2.14.2.tgz
+            sudo mv hub-linux-amd64-2.14.2/bin/hub /usr/local/bin/
+            rm -rf hub-linux-amd64-2.14.2*
+          fi
+          
+      - name: Install jq
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install jq -y
+        
       - name: Check if pull request already exists
         id: check_pr
         run: |
@@ -44,10 +58,7 @@ jobs:
           echo "::set-output name=pr_exists::$(if [[ -n $PR_COUNT ]]; then echo true; else echo false; fi)"
         shell: bash
 
-      - name: Install jq
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install jq -y
+      
 
       - name: Create Pull Request if it doesn't exist
         if: steps.check_pr.outputs.pr_exists == 'false'
