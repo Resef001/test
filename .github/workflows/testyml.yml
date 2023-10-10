@@ -3,34 +3,53 @@ name: Send submodule updates to parent repo
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
-  update-swui-fsd:
+  update-project-test:
     runs-on: ubuntu-latest
-    permissions: write-all
+
     steps:
-      - name: Checkout test2 repository
+      - name: Checkout parent repository
         uses: actions/checkout@v2
         with:
           repository: Resef001/test2
           token: ${{ secrets.SUBMODULE_UPDATE }}
           submodules: true
 
+      - name: Create feature branch
+        run: |
+          git checkout -b feature/update-submodule
+
       - name: Pull & update submodules recursively
         run: |
           git submodule update --init --recursive
           git submodule update --recursive --remote
 
-      - name: Create Pull Request - test2
-        id: create_pr
+      - name: Commit submodule changes
         run: |
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions - update submodules"
-          git checkout -b update-submodules-test2
           git add --all
-          git commit -m "Update submodules"
-          git push --set-upstream origin update-submodules-test2
-          gh pr create --base main --head update-submodules-test2 --title "Update submodules" --body "Updating submodules from test"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}   
+          git commit -m "Update submodules" || echo "No changes to commit"
+
+      - name: Push feature branch
+        run: |
+          git push origin feature/update-submodule
+          
+      - name: Install or Restore hub
+        run: |
+          if [ ! -f /usr/local/bin/hub ]; then
+            wget https://github.com/github/hub/releases/download/v2.14.2/hub-linux-amd64-2.14.2.tgz
+            tar -xvf hub-linux-amd64-2.14.2.tgz
+            sudo mv hub-linux-amd64-2.14.2/bin/hub /usr/local/bin/
+            rm -rf hub-linux-amd64-2.14.2*
+          fi
+      
+      - name: Set GITHUB_TOKEN as an environment variable
+        run: |
+          echo "GITHUB_TOKEN=${{ secrets.SUBMODULE_UPDATE }}" >> $GITHUB_ENV
+
+      - name: Create Pull Request
+        run: |
+          hub pull-request -m "Update submodules" -b master -h feature/update-submodule
