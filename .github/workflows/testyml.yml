@@ -52,4 +52,4 @@ jobs:
 
       - name: Create Pull Request
         run: |
-          hub pull-request -m "Update submodules" -b main -h feature/update-submodule -r ngalli-incomm
+          hub pull-request -m "Update submodules" -b main -h feature/update-submodule -r nico280062
