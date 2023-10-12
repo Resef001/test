@@ -46,12 +46,13 @@ jobs:
             sudo mv hub-linux-amd64-2.14.2/bin/hub /usr/local/bin/
             rm -rf hub-linux-amd64-2.14.2*
           fi
-      
+        if: success()
+
       - name: Set GITHUB_TOKEN as an environment variable
         run: |
           echo "GITHUB_TOKEN=${{ secrets.SUBMODULE_UPDATE }}" >> $GITHUB_ENV
 
       - name: Create Pull Request
         run: |
-          hub pull-request -m "Update submodules" -b main -h feature/update-submodule
+          hub pull-request -m "Update submodules" -b main -h feature/update-submodule || true
         if: success()
